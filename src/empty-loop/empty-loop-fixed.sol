@@ -11,13 +11,13 @@ contract FixedParty is ERC721 {
     }
 
     error InvalidNumberOfOrganizers();
+    error InvalidNumberOfSignatures();
     error InvalidOrganizer();
     error InvitationAlreadyUsed();
-    error InvalidNumberOfSignatures();
 
     address[] public organizers;
 
-    uint256 private _invitationId;
+    uint256 private _ticketId;
     mapping(bytes32 => bool) private _usedInvitations;
 
     constructor(address[] memory orgs) ERC721("Party Ticket", "PTK") {
@@ -28,21 +28,18 @@ contract FixedParty is ERC721 {
         }
     }
 
-    function mint(Signature[] calldata sigs) public {
+    function mint(Signature[] calldata sigs) external {
         if (sigs.length != organizers.length) revert InvalidNumberOfSignatures(); // fix
         for (uint256 i; i < sigs.length; ++i) {
             Signature calldata sig = sigs[i];
             (bytes32 envitationHash, address organizer) = _verifySignature(organizers[i], msg.sender, sig);
-            
             if (organizer != organizers[i]) revert InvalidOrganizer();
             if (_usedInvitations[envitationHash] == true) revert InvitationAlreadyUsed();
 
             _usedInvitations[envitationHash] = true;
         }
-
-        _invitationId++;
-
-        _safeMint(msg.sender, _invitationId);
+        _ticketId++;
+        _safeMint(msg.sender, _ticketId);
     }
 
     function _verifySignature(address organizer, address to, Signature calldata sig)
@@ -52,7 +49,6 @@ contract FixedParty is ERC721 {
     {
         string memory header = "\x19Ethereum Signed Message:\n52";
         bytes32 messageHash = keccak256(abi.encodePacked(header, organizer, to));
-
         return (messageHash, ecrecover(messageHash, sig.v, sig.r, sig.s));
     }
 }

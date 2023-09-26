@@ -1,6 +1,7 @@
 ## solsec
 
-Collection of solidity vulnerabilities with PoC's and tests.
+Comprehensive compilation of Solidity Security Vulnerabilities with PoC's and recommended mitigations.
 
 ### List of Vulnerabilities
-* [Empty Loops](test/empty-loop/empty-loop.md)
+* [Empty Loop](test/empty-loop/empty-loop.md)
+* [Array Duplicates](test/array-duplicates/array-duplicates.md)
