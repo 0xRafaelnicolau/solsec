@@ -29,7 +29,7 @@ contract FixedParty is ERC721 {
     }
 
     function mint(Signature[] calldata sigs) external {
-        if (sigs.length != organizers.length) revert InvalidNumberOfSignatures(); // fix
+        if (sigs.length != organizers.length) revert InvalidNumberOfSignatures();
         for (uint256 i; i < sigs.length; ++i) {
             Signature calldata sig = sigs[i];
             (bytes32 envitationHash, address organizer) = _verifySignature(organizers[i], msg.sender, sig);

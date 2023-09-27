@@ -1,11 +1,11 @@
 ## Array Duplicate Elements
-Brief explanation of the issue
+Due to insufficient validation, an attacker can pass an array with duplicate elements to steal funds from the protocol.
 
 ### Scenario
-Scenario in which the issue can occur
+Imagine you are a security researcher investigating a smart contract for a bank. The bank contract stores user's deposits in a balance array. Users can deposit and withdraw funds from their accounts using the contract. However, a flaw in the contract's logic allows for the withdrawal process to be exploited.
 
 ### Goal
-Describe the goal of the exploit based on the scenario. Vulnerable contract can be found in [array-duplicates.sol](../../src/array-duplicates/array-duplicates.sol).
+Steal all WETH deposited in the contract. Vulnerable contract can be found in [array-duplicates.sol](../../src/array-duplicates/array-duplicates.sol).
 
 ### Solution
 The Proof of Concept and functionality test can be found in [array-duplicates.t.sol](array-duplicates.t.sol).

