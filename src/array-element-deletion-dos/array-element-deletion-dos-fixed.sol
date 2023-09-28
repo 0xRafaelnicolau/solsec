@@ -21,7 +21,7 @@ contract FixedDAO {
         if (_pendingProposals.length == _maxPendingProposals) {
             revert ExceededPendingProposals();
         }
-        
+
         Proposal memory p = Proposal(block.timestamp + 1 days, false);
         _pendingProposals.push(p);
     }
@@ -31,7 +31,7 @@ contract FixedDAO {
             revert ProposalStillTimeLocked();
         }
 
-        _pendingProposals[0].executed = true; 
+        _pendingProposals[0].executed = true;
 
         for (uint256 i; i < _pendingProposals.length - 1; i++) {
             _pendingProposals[i] = _pendingProposals[i + 1];
