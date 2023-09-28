@@ -7,8 +7,8 @@ Imagine you are a security researcher investigating a smart contract for a bank.
 ### Goal
 Steal all WETH deposited in the contract. Vulnerable contract can be found in [array-duplicates.sol](../../src/array-duplicates/array-duplicates.sol).
 
-### Solution
-The Proof of Concept and functionality test can be found in [array-duplicates.t.sol](array-duplicates.t.sol).
+### Proof of Concept
+The Proof of Concept can be found in [array-duplicates.t.sol](array-duplicates.t.sol).
 
 ### Mitigation
 Fixed contract can be found in [array-duplicates-fixed.sol](../../src/array-duplicates/array-duplicates-fixed.sol).
