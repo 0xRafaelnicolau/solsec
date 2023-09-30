@@ -2,16 +2,26 @@
 pragma solidity 0.8.19;
 
 contract VulnerableStorageArray {
-    
-    address[] public users;
-
-    function register(address newUser) public {
-        users.push(newUser);
+    struct User {
+        address user;
+        uint256 timestamp;
     }
-    
-    function deleteAllUsers() public {
-        for (uint i; i < users.length; ++i) {
-            delete users[i];
+
+    error AlreadyRegistered();
+
+    User[] private _users;
+
+    function register() public {
+        if (_isRegistered(msg.sender) == true) revert AlreadyRegistered();
+
+        User memory newUser = User(msg.sender, block.timestamp);
+        _users.push(newUser);
+    }
+
+    function _isRegistered(address user) private view returns (bool) {
+        for (uint256 i; i < _users.length; ++i) {
+            if (_users[i].user == user) return true;
         }
+        return false;
     }
 }

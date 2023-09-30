@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 contract VulnerableArray {
-
     address[] public users;
 
     function register(address newUser) public {
