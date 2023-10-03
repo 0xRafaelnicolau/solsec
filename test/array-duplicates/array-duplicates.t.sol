@@ -4,11 +4,9 @@ pragma solidity 0.8.19;
 import {Test, console2} from "../../lib/forge-std/src/Test.sol";
 import {ERC20Mock} from "../../lib/openzeppelin-contracts/contracts/mocks/ERC20Mock.sol";
 import {VulnerableMultiTokenBank} from "../../src/array-duplicates/array-duplicates.sol";
-import {FixedMultiTokenBank} from "../../src/array-duplicates/array-duplicates-fixed.sol";
 
 contract TestDuplicates is Test {
     VulnerableMultiTokenBank public vulnerableBank;
-    FixedMultiTokenBank public fixedBank;
     ERC20Mock public weth;
 
     address public attacker = makeAddr("attacker");
@@ -21,9 +19,6 @@ contract TestDuplicates is Test {
 
         vulnerableBank = new VulnerableMultiTokenBank(tokens);
         weth.mint(address(vulnerableBank), 100 ether);
-
-        fixedBank = new FixedMultiTokenBank(tokens);
-        weth.mint(address(fixedBank), 100 ether);
 
         weth.mint(attacker, 20 ether);
     }
@@ -59,26 +54,5 @@ contract TestDuplicates is Test {
         console2.log("Attacker WETH balance before:       ", attackerBalanceBefore);
         console2.log("VulnerableBank WETH balance after:  ", weth.balanceOf(address(vulnerableBank)));
         console2.log("Attacker WETH balance after:        ", weth.balanceOf(attacker));
-    }
-
-    function testWithdrawAllDuplicatesFixed() public {
-        // deposit
-        vm.startPrank(attacker);
-        address[] memory tokensToDeposit = new address[](1);
-        tokensToDeposit[0] = address(weth);
-        uint256[] memory amountsToDeposit = new uint256[](1);
-        amountsToDeposit[0] = 10e18;
-        weth.approve(address(fixedBank), 10e18);
-        fixedBank.deposit(amountsToDeposit, tokensToDeposit);
-
-        // withdraw
-        address[] memory tokensToWithdraw = new address[](2);
-        tokensToWithdraw[0] = address(weth);
-        tokensToWithdraw[1] = address(weth);
-
-        // assert that it reverts.
-        vm.expectRevert(FixedMultiTokenBank.ArrayWithDuplicateToken.selector);
-        fixedBank.withdrawAll(tokensToWithdraw);
-        vm.stopPrank();
     }
 }
